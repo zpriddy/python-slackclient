@@ -4,7 +4,6 @@ from .slackrequest import SlackRequest
 from .user import User
 from .util import SearchList, SearchDict
 from .log import logger
-from ssl import SSLError
 
 import json
 import logging

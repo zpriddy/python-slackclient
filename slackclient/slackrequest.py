@@ -1,12 +1,10 @@
+from .version import __version__
+
 import json
 import platform
-import sys
-
 import requests
-import json
 import six
-
-from .version import __version__
+import sys
 
 
 class SlackRequest(object):
