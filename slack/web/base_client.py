@@ -876,7 +876,9 @@ class BaseClient:
             SlackRequestError: If niether or both the `file` and `content` args are specified.
         """
         if file is None and content is None:
-            raise err.SlackRequestError("The file or content argument must be specified.")
+            raise err.SlackRequestError(
+                "The file or content argument must be specified."
+            )
         if file is not None and content is not None:
             raise err.SlackRequestError(
                 "You cannot specify both the file and the content argument."
@@ -1205,6 +1207,10 @@ class BaseClient:
         kwargs.update(
             {"client_id": client_id, "client_secret": client_secret, "code": code}
         )
+
+        # TODO: Fix this bug asap!
+        # We strongly recommend supplying the Client ID and Client Secret using the HTTP Basic authentication scheme, as discussed in RFC 6749.
+        # If at all possible, avoid sending client_id and client_secret as parameters in your request.
         return self.api_call("oauth.access", data=kwargs)
 
     def pins_add(self, *, channel: str, **kwargs) -> Union[Future, SlackResponse]:

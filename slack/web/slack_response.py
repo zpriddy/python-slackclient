@@ -70,6 +70,7 @@ class SlackResponse(object):
         self.data = data
         self.headers = headers
         self.status_code = status_code
+        self._iteration = 0
         self._client = client
         self._logger = logging.getLogger(__name__)
 
@@ -90,7 +91,7 @@ class SlackResponse(object):
         """
         return self.data.get(key, None)
 
-    def __iter__(self):
+    def __aiter__(self):
         """Enables the ability to iterate over the response.
         It's required for the iterator protocol.
 
@@ -100,10 +101,9 @@ class SlackResponse(object):
         Returns:
             (SlackResponse) self
         """
-        self._iteration = 0
         return self
 
-    def __next__(self):
+    async def __anext__(self):
         """Retreives the next portion of results, if 'next_cursor' is present.
 
         Note:
@@ -129,20 +129,17 @@ class SlackResponse(object):
             self.req_args.get("params", {}).update(
                 {"cursor": self.data["response_metadata"]["next_cursor"]}
             )
-
-            response = asyncio.get_event_loop().run_until_complete(
-                self._client._request(
-                    http_verb=self.http_verb,
-                    api_url=self.api_url,
-                    req_args=self.req_args,
-                )
+            # TODO: Create two type of responses. An Async Response and a NonAsync Response. Handle pagination much better.
+            # This method basically needs to be an an async interator.
+            response = await self._client._request(
+                http_verb=self.http_verb, api_url=self.api_url, req_args=self.req_args
             )
             self.data = response["data"]
             self.headers = response["headers"]
             self.status_code = response["status_code"]
             return self.validate()
         else:
-            raise StopIteration
+            raise StopAsyncIteration
 
     def get(self, key, default=None):
         """Retreives any key from the response data.
