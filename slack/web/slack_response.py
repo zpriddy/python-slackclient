@@ -2,7 +2,6 @@
 
 # Standard Imports
 import logging
-import asyncio
 
 # Internal Imports
 import slack.errors as e

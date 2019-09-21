@@ -1209,7 +1209,8 @@ class BaseClient:
         )
 
         # TODO: Fix this bug asap!
-        # We strongly recommend supplying the Client ID and Client Secret using the HTTP Basic authentication scheme, as discussed in RFC 6749.
+        # We strongly recommend supplying the Client ID and Client Secret using the HTTP Basic
+        # authentication scheme, as discussed in RFC 6749.
         # If at all possible, avoid sending client_id and client_secret as parameters in your request.
         return self.api_call("oauth.access", data=kwargs)
 

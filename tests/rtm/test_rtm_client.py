@@ -7,7 +7,7 @@ import asyncio
 # Internal Imports
 import slack
 import slack.errors as e
-from tests.helpers import mock_rtm_response
+from tests.helpers import mock_rtm_response, async_test
 
 
 class TestRTMClient(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestRTMClient(unittest.TestCase):
         @slack.RTMClient.run_on(event="message")
         def fn_used_elsewhere(**_unused_payload):
             pass
-        
+
         self.assertIsNotNone(fn_used_elsewhere)
         self.assertEqual(fn_used_elsewhere.__name__, "fn_used_elsewhere")
 
@@ -82,7 +82,8 @@ class TestRTMClient(unittest.TestCase):
         self.assertIn(expected_error, error)
 
     @mock.patch("slack.WebClient._send", new_callable=mock_rtm_response)
-    def test_start_raises_an_error_if_rtm_ws_url_is_not_returned(
+    @async_test
+    async def test_start_raises_an_error_if_rtm_ws_url_is_not_returned(
         self, mock_rtm_response
     ):
         mock_rtm_response.coro.return_value = {
@@ -92,7 +93,7 @@ class TestRTMClient(unittest.TestCase):
         }
 
         with self.assertRaises(e.SlackApiError) as context:
-            slack.RTMClient(token="xoxp-1234", auto_reconnect=False).start()
+            await slack.RTMClient(token="xoxp-1234", auto_reconnect=False).start()
 
         expected_error = "Unable to retreive RTM URL from Slack"
         self.assertIn(expected_error, str(context.exception))

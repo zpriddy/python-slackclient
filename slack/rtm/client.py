@@ -187,8 +187,9 @@ class RTMClient(object):
         if os.name != "nt":
             signals = (signal.SIGHUP, signal.SIGTERM, signal.SIGINT)
             for s in signals:
-                self._event_loop.add_signal_handler(s, self.stop)
-
+                self._event_loop.add_signal_handler(
+                    s, lambda s=s: asyncio.create_task(self.stop())
+                )
         await self._connect_and_read()
 
     async def stop(self):
@@ -424,7 +425,12 @@ class RTMClient(object):
                     # close/error callbacks.
                     break
 
-                await callback(rtm_client=self, web_client=self._web_client, data=data)
+                if asyncio.iscoroutinefunction(callback):
+                    await callback(
+                        rtm_client=self, web_client=self._web_client, data=data
+                    )
+                else:
+                    callback(rtm_client=self, web_client=self._web_client, data=data)
             except Exception as err:
                 name = callback.__name__
                 module = callback.__module__
